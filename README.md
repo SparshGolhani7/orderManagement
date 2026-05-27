@@ -1,6 +1,6 @@
 # Order Management Enquiry System
 
-A full-stack POC application for managing and viewing order details. Built with **Spring Boot** (backend) and **React** (frontend), connected to a **MySQL** database.
+A full-stack POC application for managing and viewing order details. Built with **Spring Boot** (backend) and **React** (frontend), connected to a **PostgreSQL** database.
 
 ---
 
@@ -10,7 +10,7 @@ A full-stack POC application for managing and viewing order details. Built with 
 |----------|-------------------------------------|
 | Backend  | Java 17, Spring Boot 3.5, REST APIs |
 | ORM      | JPA / Hibernate                     |
-| Database | MySQL 8                             |
+| Database | PostgreSQL                          |
 | Frontend | React 19, Vite                      |
 
 ---
@@ -21,12 +21,13 @@ A full-stack POC application for managing and viewing order details. Built with 
 ordermanagement/
 ├── backend/
 │   ├── src/main/java/com/example/ordermanagement/
-│   │   ├── model/              # Order entity & OrderStatus enum
+│   │   ├── entity/             # Order entity & OrderStatus enum
+│   │   ├── dto/                # Request/response DTOs
 │   │   ├── repository/         # JPA repository with search queries
 │   │   ├── service/            # Business logic layer
 │   │   ├── controller/         # REST API endpoints
 │   │   ├── exception/          # Global error handling
-│   │   └── config/             # CORS config & data seeder
+│   │   └── config/             # CORS config
 │   ├── src/main/resources/
 │   │   └── application.properties
 │   ├── pom.xml
@@ -35,7 +36,7 @@ ordermanagement/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/         # SearchBar, StatusFilter, OrderTable, OrderDetail
+│   │   ├── components/         # SearchBar, OrderTable, OrderDetail
 │   │   ├── services/           # API service (fetch calls)
 │   │   ├── App.jsx             # Main application component
 │   │   ├── App.css             # Application styles
@@ -57,8 +58,6 @@ ordermanagement/
 | GET    | `/api/orders/{id}`              | Get order by ID                      |
 | GET    | `/api/orders/number/{orderNo}`  | Get order by order number            |
 | GET    | `/api/orders/search?keyword=`   | Search by order number/customer/product |
-| GET    | `/api/orders/status/{status}`   | Filter orders by status              |
-| GET    | `/api/orders/customer?name=`    | Get orders by customer name          |
 
 ---
 
@@ -67,7 +66,7 @@ ordermanagement/
 - Java 17
 - Maven 3.8+
 - Node.js 18+
-- MySQL 8
+- PostgreSQL 14+
 
 ---
 
@@ -76,7 +75,15 @@ ordermanagement/
 ### 1. Database Setup
 
 ```bash
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS ordermanagement; CREATE USER IF NOT EXISTS 'orderuser'@'localhost' IDENTIFIED BY 'orderpass123'; GRANT ALL PRIVILEGES ON ordermanagement.* TO 'orderuser'@'localhost'; FLUSH PRIVILEGES;"
+sudo -u postgres psql -c "CREATE DATABASE ordermanagement;"
+sudo -u postgres psql -c "CREATE USER orderuser WITH PASSWORD 'orderpass123';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ordermanagement TO orderuser;"
+```
+
+After first backend start (creates table), load sample data:
+
+```bash
+psql -U orderuser -d ordermanagement -f backend/src/main/resources/data.sql
 ```
 
 ### 2. Backend
@@ -94,7 +101,7 @@ cp .env.example .env
 
 Backend starts at: `http://localhost:8080`
 
-On first run, the database table is auto-created and seeded with 10 sample orders.
+On first run, Hibernate auto-creates the `orders` table. Insert sample rows with `data.sql` (see above).
 
 ### 3. Frontend
 
@@ -121,8 +128,8 @@ Frontend starts at: `http://localhost:5173`
 
 | Variable     | Description              | Default          |
 |--------------|--------------------------|------------------|
-| DB_HOST      | MySQL host               | localhost        |
-| DB_PORT      | MySQL port               | 3306             |
+| DB_HOST      | PostgreSQL host          | localhost        |
+| DB_PORT      | PostgreSQL port          | 5432             |
 | DB_NAME      | Database name            | ordermanagement  |
 | DB_USERNAME  | Database username        | orderuser        |
 | DB_PASSWORD  | Database password        | orderpass123     |
@@ -140,10 +147,9 @@ Frontend starts at: `http://localhost:5173`
 ## Features
 
 - **Search Orders** — Search by order number, customer name, or product
-- **Filter by Status** — PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
 - **View Order Details** — Click any order to see full details in a modal
 - **Error Handling** — Global exception handler with proper HTTP status codes
-- **Data Seeding** — 10 sample orders auto-loaded on first run
+- **Sample Data** — SQL script in `backend/src/main/resources/data.sql`
 - **CORS Configured** — Backend allows frontend origin
 - **Environment Variables** — No secrets hardcoded in source
 
@@ -151,7 +157,7 @@ Frontend starts at: `http://localhost:5173`
 
 ## Sample Data
 
-The application seeds 10 orders on first run with various statuses:
+Run `data.sql` to load 10 sample orders:
 
 | Order #        | Customer       | Product                    | Status     |
 |----------------|----------------|----------------------------|------------|
@@ -167,7 +173,7 @@ The application seeds 10 orders on first run with various statuses:
 ## Architecture
 
 ```
-Frontend (React)  →  fetch()  →  Backend (Spring Boot REST)  →  JPA/Hibernate  →  MySQL
+Frontend (React)  →  fetch()  →  Backend (Spring Boot REST)  →  JPA/Hibernate  →  PostgreSQL
 ```
 
 - **Controller** — Handles HTTP requests, returns ResponseEntity

@@ -1,5 +1,6 @@
--- Order Management - Sample Data
--- Run this manually: mysql -u orderuser -porderpass123 ordermanagement < data.sql
+-- Order Management - Sample Data (PostgreSQL)
+-- Run after starting backend once (so table exists):
+--   psql -U orderuser -d ordermanagement -f backend/src/main/resources/data.sql
 
 INSERT INTO orders (order_number, customer_name, customer_email, product, quantity, unit_price, total_amount, status, order_date, delivery_date, shipping_address) VALUES
 ('ORD-2024-001', 'Rahul Sharma', 'rahul.sharma@email.com', 'Laptop - Dell Inspiron 15', 1, 72999.00, 72999.00, 'DELIVERED', '2024-01-15 10:30:00', '2024-01-22 14:00:00', '42, MG Road, Bangalore, Karnataka 560001'),

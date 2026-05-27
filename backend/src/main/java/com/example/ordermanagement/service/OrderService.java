@@ -2,7 +2,6 @@ package com.example.ordermanagement.service;
 
 import com.example.ordermanagement.dto.OrderResponse;
 import com.example.ordermanagement.entity.Order;
-import com.example.ordermanagement.entity.OrderStatus;
 import com.example.ordermanagement.exception.OrderNotFoundException;
 import com.example.ordermanagement.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,12 +40,6 @@ public class OrderService {
         return orders.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
-    public List<OrderResponse> getOrdersByStatus(OrderStatus status) {
-        List<Order> orders = orderRepository.findByStatus(status);
-        return orders.stream().map(this::mapToResponse).collect(Collectors.toList());
-    }
-
-    // Convert Entity to DTO
     private OrderResponse mapToResponse(Order order) {
         return OrderResponse.builder()
                 .id(order.getId())

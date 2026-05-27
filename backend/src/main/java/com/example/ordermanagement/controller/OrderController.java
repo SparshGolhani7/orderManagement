@@ -1,7 +1,6 @@
 package com.example.ordermanagement.controller;
 
 import com.example.ordermanagement.dto.OrderResponse;
-import com.example.ordermanagement.entity.OrderStatus;
 import com.example.ordermanagement.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,10 +33,5 @@ public class OrderController {
     @GetMapping("/search")
     public ResponseEntity<List<OrderResponse>> searchOrders(@RequestParam String keyword) {
         return ResponseEntity.ok(orderService.searchOrders(keyword));
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByStatus(@PathVariable OrderStatus status) {
-        return ResponseEntity.ok(orderService.getOrdersByStatus(status));
     }
 }
